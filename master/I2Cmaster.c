@@ -14,7 +14,7 @@ uint8_t recv[BUFLEN_RECV]; //buffer to store received bytes
 
 #define BUFLEN_TRAN 12
 uint8_t t_index=0;
-uint8_t tran[BUFLEN_TRAN]= {1,2,3,4,5,6,7,8,9,10,11,12};
+uint8_t tran[BUFLEN_TRAN]= {10,20,30,40,50,63,95,127,159,191,223,255};
 //variable to indicate if something went horribly wrong
 uint8_t reset=0;
 
@@ -123,16 +123,16 @@ void handleI2C_master(){
    //if the next byte is not the last, ack the next received byte
    if(r_index < BUFLEN_RECV){
     TWACK;
-  _delay_ms(100);
-  makesnd(recv[0]);	// this is int, all fractions are lost
-  makesnd(recv[1]);	// this is int, all fractions are lost
-  makesnd(recv[2]);	// this is int, all fractions are lost
-  _delay_ms(2000);
    }
    //otherwise NACK the next byte
    else {
     TWNACK;
     r_index =BUFLEN_RECV;
+    _delay_ms(100);
+    makesnd(recv[0]);	// this is int, all fractions are lost
+    makesnd(recv[1]);	// this is int, all fractions are lost
+    makesnd(recv[2]);	// this is int, all fractions are lost
+    _delay_ms(2000);
    }
    break;
   case 0x58: //last data nacked, as it should be
@@ -162,7 +162,7 @@ void makesnd(uint16_t frequency)
 {
 		frequency=(frequency+50);
 		uint16_t decrease = 0;
-		decrease=4000/frequency; // buzzer will make sound repeated this many times
+		decrease=3000/frequency; // buzzer will make sound repeated this many times
    		while(decrease){
 			var_delay_us(frequency);	// buzzer frequency
 			PORTB= 0x04; // 00000100
