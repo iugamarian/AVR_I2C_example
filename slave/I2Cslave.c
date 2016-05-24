@@ -1,4 +1,7 @@
+#define F_CPU 16000000UL
 #include <util/twi.h>
+#include <avr/io.h>
+#include <util/delay.h>
 #define SET(x,y) (x|=(1<<y))
 #define CLR(x,y) (x&=(~(1<<y)))
 #define CHK(x,y) (x&(1<<y)) 
@@ -19,9 +22,16 @@ uint8_t tran[BUFLEN_TRAN] = {0x12, 0x34, 0x56};
 
  //prototypes
 void handleI2C();
+void var_delay_us(uint16_t);
+void makesnd(uint16_t);
+
 
 //---------------MAIN---------------------------------------------
 int main(){
+  _delay_ms(300);	// shorter than master
+
+  DDRB = 0x04; // 00000100 buzzer out
+  PORTB= 0x00; // buzzer low
   //load slave address
  TWAR = (0x01<<1); //we're using address 0x01 
  //enable I2C hardware
@@ -57,6 +67,23 @@ void handleI2C(){
       //don't ack next data if buffer is full
       if(r_index >= BUFLEN_RECV){
         TWNACK;
+  _delay_ms(400);
+  makesnd(recv[0]);	// this is int, all fractions are lost
+  makesnd(recv[1]);	// this is int, all fractions are lost
+  makesnd(recv[2]);	// this is int, all fractions are lost
+  makesnd(recv[0]);	// this is int, all fractions are lost
+  makesnd(recv[1]);	// this is int, all fractions are lost
+  makesnd(recv[2]);	// this is int, all fractions are lost
+  makesnd(recv[0]);	// this is int, all fractions are lost
+  makesnd(recv[1]);	// this is int, all fractions are lost
+  makesnd(recv[2]);	// this is int, all fractions are lost
+  makesnd(recv[0]);	// this is int, all fractions are lost
+  makesnd(recv[1]);	// this is int, all fractions are lost
+  makesnd(recv[2]);	// this is int, all fractions are lost
+  makesnd(recv[0]);	// this is int, all fractions are lost
+  makesnd(recv[1]);	// this is int, all fractions are lost
+  makesnd(recv[2]);	// this is int, all fractions are lost
+  _delay_ms(100);
       }else {
     TWACK;
    }
@@ -84,7 +111,11 @@ void handleI2C(){
       TWDR = tran[t_index];
       t_index++;
       //designate last byte if we're at the end of the buffer
-      if(t_index >= BUFLEN_TRAN) TWNACK;
+      if(t_index >= BUFLEN_TRAN)
+      {
+         TWNACK;
+         _delay_ms(1000);
+      }
       else TWACK;
       break;
     case 0xC8: //last byte send and acked by master
@@ -101,4 +132,26 @@ void handleI2C(){
       break;
     }
   }
+}
+
+
+void var_delay_us(uint16_t usvar)	// allow delays without constant, for buzzer
+{
+  while (usvar-- != 0)
+    _delay_us(1);
+}
+
+void makesnd(uint16_t frequency)
+{
+		frequency=(frequency+50);
+		uint16_t decrease = 0;
+		decrease=4000/frequency; // buzzer will make sound repeated this many times
+   		while(decrease){
+			var_delay_us(frequency);	// buzzer frequency
+			PORTB= 0x04; // 00000100
+			var_delay_us(frequency);	// buzzer frequency
+			PORTB= 0x00;
+    	 	decrease--;
+		}
+    _delay_ms(200);
 }
