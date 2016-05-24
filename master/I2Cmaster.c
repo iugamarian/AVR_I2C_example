@@ -1,4 +1,7 @@
+#define F_CPU 16000000UL
 #include <util/twi.h>
+#include <avr/io.h>
+#include <util/delay.h>
 #define SET(x,y) (x|=(1<<y))
 #define CLR(x,y) (x&=(~(1<<y)))
 #define CHK(x,y) (x&(1<<y)) 
@@ -17,10 +20,16 @@ uint8_t reset=0;
 
 //prototypes
 void handleI2C_master();
+void var_delay_us(uint16_t);
+void makesnd(uint16_t);
 
 
 //---------------MAIN---------------------------------------------
 int main(){
+  _delay_ms(600);	// longer than slave
+
+  DDRB = 0x04; // 00000100 buzzer out
+  PORTB= 0x00; // buzzer low
   //set bitrate for I2C
  TWBR = 10;
  //enable I2C hardware
@@ -86,6 +95,7 @@ void handleI2C_master(){
    }
    //otherwise, switch mode and send a start signal
    else {
+    _delay_ms(2000);
     mode = TW_READ;
     TWSTART;
     break;
@@ -113,6 +123,11 @@ void handleI2C_master(){
    //if the next byte is not the last, ack the next received byte
    if(r_index < BUFLEN_RECV){
     TWACK;
+  _delay_ms(100);
+  makesnd(recv[0]);	// this is int, all fractions are lost
+  makesnd(recv[1]);	// this is int, all fractions are lost
+  makesnd(recv[2]);	// this is int, all fractions are lost
+  _delay_ms(2000);
    }
    //otherwise NACK the next byte
    else {
@@ -134,4 +149,26 @@ void handleI2C_master(){
       break;
     }
   }
+}
+
+
+void var_delay_us(uint16_t usvar)	// allow delays without constant, for buzzer
+{
+  while (usvar-- != 0)
+    _delay_us(1);
+}
+
+void makesnd(uint16_t frequency)
+{
+		frequency=(frequency+50);
+		uint16_t decrease = 0;
+		decrease=4000/frequency; // buzzer will make sound repeated this many times
+   		while(decrease){
+			var_delay_us(frequency);	// buzzer frequency
+			PORTB= 0x04; // 00000100
+			var_delay_us(frequency);	// buzzer frequency
+			PORTB= 0x00;
+    	 	decrease--;
+		}
+    _delay_ms(200);
 }
