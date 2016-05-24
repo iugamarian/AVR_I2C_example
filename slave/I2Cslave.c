@@ -71,18 +71,15 @@ void handleI2C(){
   makesnd(recv[0]);	// this is int, all fractions are lost
   makesnd(recv[1]);	// this is int, all fractions are lost
   makesnd(recv[2]);	// this is int, all fractions are lost
-  makesnd(recv[0]);	// this is int, all fractions are lost
-  makesnd(recv[1]);	// this is int, all fractions are lost
-  makesnd(recv[2]);	// this is int, all fractions are lost
-  makesnd(recv[0]);	// this is int, all fractions are lost
-  makesnd(recv[1]);	// this is int, all fractions are lost
-  makesnd(recv[2]);	// this is int, all fractions are lost
-  makesnd(recv[0]);	// this is int, all fractions are lost
-  makesnd(recv[1]);	// this is int, all fractions are lost
-  makesnd(recv[2]);	// this is int, all fractions are lost
-  makesnd(recv[0]);	// this is int, all fractions are lost
-  makesnd(recv[1]);	// this is int, all fractions are lost
-  makesnd(recv[2]);	// this is int, all fractions are lost
+  makesnd(recv[3]);	// this is int, all fractions are lost
+  makesnd(recv[4]);	// this is int, all fractions are lost
+  makesnd(recv[5]);	// this is int, all fractions are lost
+  makesnd(recv[6]);	// this is int, all fractions are lost
+  makesnd(recv[7]);	// this is int, all fractions are lost
+  makesnd(recv[8]);	// this is int, all fractions are lost
+  makesnd(recv[9]);	// this is int, all fractions are lost
+  makesnd(recv[10]);	// this is int, all fractions are lost
+  makesnd(recv[11]);	// this is int, all fractions are lost
   _delay_ms(100);
       }else {
     TWACK;
@@ -114,7 +111,7 @@ void handleI2C(){
       if(t_index >= BUFLEN_TRAN)
       {
          TWNACK;
-         _delay_ms(1000);
+         _delay_ms(100);
       }
       else TWACK;
       break;
@@ -145,7 +142,7 @@ void makesnd(uint16_t frequency)
 {
 		frequency=(frequency+50);
 		uint16_t decrease = 0;
-		decrease=4000/frequency; // buzzer will make sound repeated this many times
+		decrease=3000/frequency; // buzzer will make sound repeated this many times
    		while(decrease){
 			var_delay_us(frequency);	// buzzer frequency
 			PORTB= 0x04; // 00000100
